@@ -1,0 +1,79 @@
+﻿@page "/category/edit"
+@using BlazorApp1.Client.Helpers
+@using BlazorApp.ViewModel
+@inject NavigationManager NavigationManager
+@using System.Net.Http.Headers;
+@inject ICategoryService _categoryService
+
+<PageTitle>Edit</PageTitle>
+
+<h3>Edit Category</h3>
+<hr />
+@if (Category is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div style="width:60%;">
+        <EditForm method="post" Model="Category" OnValidSubmit="UpdateMovie" FormName="edit" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <input type="hidden" name="Category.Id" value="@Category.Id" />
+            <div class="row mb-3">
+                <label for="inputCode" class="col-sm-2 col-form-label">Name</label>
+                <div class="col-sm-10">
+                    <InputText type="text" class="form-control" id="empcode" @bind-Value="@Category.Name" @Value="@Category.Name" />
+                    <ValidationMessage For="@(() => Category.Name)" />
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="inputName" class="col-sm-2 col-form-label">Description</label>
+                <div class="col-sm-10">
+                    <InputText type="text" class="form-control" id="empname" @bind-Value="@Category.Description" />
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-10">
+                    <a class="btn btn-danger" tabindex="-1" role="button" aria-disabled="true" href="category">Back To Category List</a>                    
+                    <button type="submit" class="btn btn-primary ml-2">Save</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private CategoryModel? Category { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Category ??= await _categoryService.GetCategory(Id);
+
+        if (Category is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task UpdateMovie()
+    {
+        int returnId = await _categoryService.Update(Category!);
+
+        if (returnId > 0)
+        {
+            NavigationManager.NavigateTo("category");
+        }
+    }
+
+    // private bool MovieExists(int id)
+    // {
+    //     using var context = DbFactory.CreateDbContext();
+    //     return context.Movie.Any(e => e.Id == id);
+    // }
+}

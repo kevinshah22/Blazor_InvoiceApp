@@ -1,0 +1,63 @@
+﻿@page "/sample"
+@* @rendermode InteractiveAuto *@
+@using BlazorApp1.Client.Helpers
+@using BlazorApp.ViewModel
+@inject HttpClient Http
+
+<PageTitle>Categories</PageTitle>
+
+<h1>Categories</h1>
+<div class="row mb-2">
+    <div class="col-md-12">
+        <a href='/sample/add' class="btn btn-primary" role="button">
+            <i class="fas fa-user-plus"></i>
+            Add Category
+        </a>
+    </div>
+    @*  <div class="input-group col">
+    <input type="text" class="form-control" placeholder="Search user by name"
+    @bind="SearchString" @bind:event="oninput" @onkeyup="FilterUser" />
+    @if (SearchString.Length > 0)
+    {
+    <div class="input-group-append">
+    <button class="btn btn-danger" @onclick="ResetSearch">
+    <i class="fas fa-times"></i>
+    </button>
+    </div>
+    }
+    </div> *@
+</div>
+<br />
+
+<table class="table table-striped align-middle table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in categories)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td>@category.Description</td>
+                <td></td>
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private IEnumerable<CategoryModel>? categories = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        APIResponse apiResponse = await Http.GetFromJsonAsync<APIResponse>("https://localhost:7204/v1/Category");
+
+        categories = ResponseHelper.GetResponse<List<CategoryModel>>(apiResponse);
+    }
+}

@@ -1,0 +1,59 @@
+﻿@using BlazorApp.ViewModel
+@using BlazorApp1.Client.Helpers
+@inject NavigationManager NavigationManager
+@using System.Net.Http.Headers;
+@inject HttpClient Http
+
+@if (categories == null)
+{
+    <p>
+        <em>Loading ...</em>
+    </p>
+}
+else
+{
+    <select class="form-control" title="Region is required" @onchange="OnValueChanged" ValueChanged="value =>
+    HandleSeverityChanged( value)">
+        <option value="Select" selected disabled="disabled">Select Category</option>
+        @foreach (var category in categories)
+        {
+            <option value="@category.Id">@category.Name</option>
+        }
+    </select>
+}
+
+@code {
+    protected IEnumerable<CategoryModel>? categories = [];    
+
+    [Parameter]
+    public int Value
+    {
+        get;
+        set;
+    }
+    [Parameter]
+    public EventCallback<int> ValueChanged
+    {
+        get;
+        set;
+    }
+    [Parameter]
+    public int CategoryId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        APIResponse apiResponse = await Http.GetFromJsonAsync<APIResponse>("https://localhost:7204/v1/Category");
+        categories = ResponseHelper.GetResponse<List<CategoryModel>>(apiResponse);
+    }
+
+    protected Task OnValueChanged(ChangeEventArgs e)
+    {
+        Value = Convert.ToInt32(e.Value.ToString());
+        return ValueChanged.InvokeAsync(Value);
+    }
+
+    void HandleSeverityChanged(string value)
+    {
+        CategoryId = Convert.ToInt32(value);
+    }
+}

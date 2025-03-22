@@ -1,0 +1,81 @@
+﻿@page "/store/add"
+@page "/store/edit/{id:int}"
+@using BlazorApp1.Client.Helpers
+@using BlazorApp.ViewModel
+@inject NavigationManager NavigationManager
+@using System.Net.Http.Headers;
+@inject HttpClient Http
+
+<PageTitle>Store</PageTitle>
+
+<h1>@Title Store</h1>
+
+<EditForm Model="store" OnValidSubmit="SaveStore" FormName="storeAdd">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="Name" class="form-label">Store Name</label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="catname" @bind-Value="store.Name" />
+            <ValidationMessage For="@(() => store.Name)" />
+        </div>        
+    </div>
+    <div class="mb-3">
+        <label for="Description" class="form-label">Description</label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="catdesc" @bind-Value="store.Description" />
+        </div>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn btn-danger" tabindex="-1" role="button" aria-disabled="true" href="store">Back To Store List</a>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    protected string Title = "Add";
+    [SupplyParameterFromForm]
+    protected StoreModel store { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (id != 0)
+        {
+            Title = "Edit";
+            APIResponse apiResponse = await Http.GetFromJsonAsync<APIResponse>($"https://localhost:7204/v1/Store/{id}");
+            store = ResponseHelper.GetResponse<StoreModel>(apiResponse);
+        }
+        else
+        {
+            store ??= new();            
+        }
+    }
+
+    protected async Task SaveStore()
+    {
+        var categorySerialized = System.Text.Json.JsonSerializer.Serialize(store);
+
+        if (id > 0)
+        {
+            var result = await Http.PutAsJsonAsync("https://localhost:7204/v1/Store", store);
+            if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                NavigationManager.NavigateTo("store");
+            }
+        }
+        else
+        {
+            var result = await Http.PostAsJsonAsync("https://localhost:7204/v1/Store", store);
+            if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                NavigationManager.NavigateTo("store");
+            }
+        }
+    }
+
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("/store");
+    }
+}

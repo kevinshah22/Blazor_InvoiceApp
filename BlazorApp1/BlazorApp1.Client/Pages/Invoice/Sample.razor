@@ -1,0 +1,51 @@
+﻿@page "/sample2"
+
+<h3>Dynamic Rows in Blazor WebAssembly</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var person in People)
+        {
+            <tr>
+                <td>
+                    <input type="text" class="form-control" @bind="person.Name" />
+                </td>
+                <td>
+                    <input type="number" class="form-control" @bind="person.Age" />
+                </td>
+                <td>
+                    <button class="btn btn-danger" @onclick="() => RemoveRow(person)">Remove</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-primary" @onclick="AddRow">Add Row</button>
+
+@code {
+    public class Person
+    {
+        public string Name { get; set; } = string.Empty;
+        public int Age { get; set; }
+    }
+
+    private List<Person> People = new();
+
+    private void AddRow()
+    {
+        People.Add(new Person());
+    }
+
+    private void RemoveRow(Person person)
+    {
+        People.Remove(person);
+    }
+}

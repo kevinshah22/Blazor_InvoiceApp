@@ -1,0 +1,120 @@
+﻿@page "/item/add"
+@page "/item/edit/{id:int}"
+
+@using BlazorApp1.Client.Helpers
+@using BlazorApp.ViewModel
+@inject NavigationManager NavigationManager
+@using System.Net.Http.Headers;
+@inject HttpClient Http
+@inject ICategoryService _categoryService
+@inject IItemService _itemService
+
+
+<PageTitle>Store</PageTitle>
+
+<h1>@Title Item</h1>
+
+<EditForm Model="item" OnValidSubmit="SaveItem" FormName="itemAdd">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="Name" class="form-label">Store Name</label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="catname" @bind-Value="item.Name" />
+            <ValidationMessage For="@(() => item.Name)" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="Description" class="form-label">Description</label>
+        <div class="col-sm-10">
+            <InputText class="form-control" id="catdesc" @bind-Value="item.Description" />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="Description" class="form-label">Category</label>
+        <div class="col-sm-10">
+            @* <BlazorApp1.Client.Pages.UserComponents.CategoryDropdown @bind-Value="CategoryId"></BlazorApp1.Client.Pages.UserComponents.CategoryDropdown> *@
+
+            <InputSelect @bind-Value="item.CategoryId" class="form-select">
+                <option value="">Select Category</option>
+                @foreach (var category in item.Categories)
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" @onclick="CloseDialog">@(IsDialog ? "Close" : "Back To Store List")</button>
+
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    [Parameter]
+    public int CategoryId { get; set; }
+    [Parameter] 
+    public bool IsDialog { get; set; } = false;
+
+    [CascadingParameter] public EventCallback<bool>? OnClose { get; set; }
+    [Parameter] public EventCallback<int> OnValueChanged { get; set; }
+
+
+    protected string Title = "Add";
+
+    [SupplyParameterFromForm]
+    protected ItemModel item { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        item ??= new();
+        item.Categories = new();
+        item.Categories = await _categoryService.GetCategories();
+        if (id != 0)
+        {
+            Title = "Edit";
+            APIResponse editResponse = await Http.GetFromJsonAsync<APIResponse>($"https://localhost:7204/v1/Store/{id}");
+            item = ResponseHelper.GetResponse<ItemModel>(editResponse);
+        }
+    }
+
+    protected async Task SaveItem()
+    {
+        int returnId = 0;
+        if (id > 0)
+        {
+            returnId = await _itemService.Update(item);
+        }
+        else
+        {
+            returnId = await _itemService.Create(item);
+        }
+
+        if (returnId > 0)
+        {
+            await OnValueChanged.InvokeAsync(returnId);
+
+            CloseDialog();
+        }
+    }
+
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("/item");
+    }
+
+    private void CloseDialog()
+    {
+        if (OnClose.HasValue)
+        {
+            OnClose.Value.InvokeAsync(false);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/item");
+        }
+    }
+}

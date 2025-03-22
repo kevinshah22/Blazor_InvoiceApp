@@ -1,0 +1,48 @@
+﻿@using BlazorApp.ViewModel
+@using System.Net.Http.Headers;
+
+<h3>@HeaderText</h3>
+<hr />
+
+<div style="width:60%;">
+
+    <EditForm Model="Category" OnValidSubmit="OnValidSubmit" FormName="categoryadd">
+        <DataAnnotationsValidator />
+
+        <div class="row mb-3">
+            <label for="inputCode" class="col-sm-2 col-form-label">Category Name</label>
+            <div class="col-sm-10">
+                <InputText type="text" class="form-control" id="empcode" @bind-Value="@Category.Name" @Value="@Category.Name" />
+                <ValidationMessage For="@(() => Category.Name)" />
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="inputName" class="col-sm-2 col-form-label">Category Description</label>
+            <div class="col-sm-10">
+                <InputText type="text" class="form-control" id="empname" @bind-Value="@Category.Description" />
+            </div>
+        </div>
+
+
+        <a class="btn btn-danger" tabindex="-1" role="button" aria-disabled="true" href="category">Back To Category List</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+        <button type="submit" class="btn btn-primary">@(Id > 0 ? "Update" : "Save")</button>
+        
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Parameter] public string HeaderText { get; set; }
+    [Parameter] public CategoryModel Category { get; set; }
+
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+}
