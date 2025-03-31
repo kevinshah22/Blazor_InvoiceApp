@@ -1,8 +1,8 @@
 using BlazorApp.Core;
 using BlazorApp.Services;
+using BlazorApp1.Client;
 using BlazorApp1.Components;
-using Flurl.Http;
-using Microsoft.Extensions.Configuration;
+using BlazorSpinner;
 using MudBlazor.Services;
 
 
@@ -18,12 +18,15 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IStoreService, StoreService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<IJobApplicationService, JobApplicationService>();
 
 ApplicationSettings applicationSetting = builder.Configuration.GetSection("AppSettings").Get<ApplicationSettings>();
 builder.Services.AddSingleton(applicationSetting);
+builder.Services.AddScoped<SpinnerService>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddMudServices();
+
 
 
 var app = builder.Build();
@@ -49,6 +52,6 @@ app.MapRazorComponents<App>()
     .AddAdditionalAssemblies(typeof(BlazorApp1.Client._Imports).Assembly)
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode();
-    
+
 
 app.Run();

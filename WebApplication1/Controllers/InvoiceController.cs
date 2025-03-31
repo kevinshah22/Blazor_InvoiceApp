@@ -72,20 +72,40 @@ namespace WebApplication1.Controllers
             return Ok(_mapper.Map<List<InvoiceModel>>(await _invoiceRepository.GetInvoices()));
         }
 
-        //[HttpPut]
-        //public async Task<IActionResult> Update(CategoryModel category)
-        //{
-        //    Category dbcategory = await _categoryRepository.Getcategory(x => x.Id == category.Id);
+        [HttpPut]
+        public async Task<IActionResult> Update(InvoiceCreateModel invoice)
+        {
+            Invoice existingInvoice = await _invoiceRepository.GetInvoice(x=> x.Id == invoice.Invoice.Id);
 
-        //    if (dbcategory != null)
-        //    {
-        //        dbcategory.Name = category.Name;
-        //        dbcategory.Description = category.Description;
+            if (existingInvoice != null)
+            {
+                if (ModelState.IsValid)
+                {
+                    Invoice createInvoice = _mapper.Map<Invoice>(invoice.Invoice);
+                    await _invoiceRepository.Update(createInvoice);
 
-        //        return Ok(await _categoryRepository.Update(dbcategory));
-        //    }
+                    List<InvoiceItem> invoiceItems = await _invoiceItemRepository.GetInvoiceItems(x=> x.InvoiceId == invoice.Invoice.Id);
+                    await _invoiceItemRepository.Delete(invoiceItems);
 
-        //    return NotFound("Category not found");
-        //}
+                    foreach (var item in invoice.InvoiceItems)
+                    {
+                        item.InvoiceId = createInvoice.Id;
+                        item.Id = 0;
+                    }
+
+                    List<InvoiceItem> items = _mapper.Map<List<InvoiceItem>>(invoice.InvoiceItems);
+
+                    await _invoiceItemRepository.Create(items);
+
+                    return Ok(createInvoice.Id);
+                }
+                else
+                {
+                    return BadRequest(ModelState);
+                }
+            }
+
+            return NotFound("Invoice not found");
+        }
     }
 }

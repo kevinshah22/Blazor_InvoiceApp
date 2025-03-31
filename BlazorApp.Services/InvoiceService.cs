@@ -55,6 +55,20 @@ namespace BlazorApp.Services
             return ResponseHelper.GetResponse<int>(apiResponse);
         }
 
+        /// <summary>
+        /// Add category 
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        public async Task<int> Update(InvoiceCreateModel invoice)
+        {
+            APIResponse apiResponse = await _settings.APIEndPoint.AppendPathSegment(APIRoutes.InvoiceController)
+                                        .PutJsonAsync(invoice)
+                                        .ReceiveJson<APIResponse>();
+
+            return ResponseHelper.GetResponse<int>(apiResponse);
+        }
+
 
         /// <summary>
         /// Get list of category 

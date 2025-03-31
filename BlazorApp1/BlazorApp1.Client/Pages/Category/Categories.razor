@@ -3,15 +3,18 @@
 @using BlazorApp1.Client.Helpers
 @using BlazorApp.Services
 @using BlazorApp.ViewModel
-@inject HttpClient Http
-@inject IJSRuntime JsRuntime
+@using MudBlazor
+@using Helpers
 @inject ICategoryService _categoryService
+@inject IDialogService DialogService
+@inject BlazorSpinner.SpinnerService _spinnerService
 
 <PageTitle>Categories</PageTitle>
 
-<h1>Categories</h1>
-<div class="row mb-2">
-    <div class="col-md-12">
+
+<div class="row">
+    <div class="col-md-9"><h1>Categories</h1></div>
+    <div class="col-md-3 text-end">
         <a href='/category/add' class="btn btn-primary" role="button">
             <i class="fas fa-user-plus"></i>
             Add Category
@@ -55,11 +58,11 @@
                     </a>
                 </td>
                 <td width="12%">
-                    <a class="btn btn-danger" tabindex="-1" role="button" aria-disabled="true" @onclick="_ => DeleteCategory(category)">
+                    @*  <a class="btn btn-danger" tabindex="-1" role="button" aria-disabled="true" @onclick="_ => DeleteCategory(category)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
                             <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"></path>
                         </svg> Delete
-                    </a>
+                    </a> *@
                 </td>
             </tr>
         }
@@ -71,28 +74,31 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _spinnerService.Show();
         categories = await _categoryService.GetCategories();
+        _spinnerService.Hide();
     }
 
     private string EditCategory(CategoryModel category)
     {
-        return $"category/edit?id={category.Id}";
+        return $"category/edit/{category.Id}";
     }
 
     private async Task DeleteCategory(CategoryModel category)
     {
-        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure to Delete the Category : {category.Name}?"); // Confirm
-
-        if (confirmed)
+        var parameters = new DialogParameters<Dialog>
         {
-            // var result = await Http.DeleteAsync($"/api/employee/deleteemployee/{employee.Id}");
-            // if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
-            // {
-            //     await this.FetEmployees();
-            // }
-        }
+            { x => x.ContentText, "Do you really want to delete these records? This process cannot be undone." },
+            { x => x.ButtonText, "Delete" },
+            { x => x.Color, Color.Error }
+        };
 
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
+        var dialog = await DialogService.ShowAsync<Dialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+
+        
     }
 
 }

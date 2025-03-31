@@ -22,8 +22,7 @@ namespace BlazorApp.Services
         /// <returns></returns>
         public async Task<ItemModel> Get(int id)
         {
-            APIResponse apiResponse = await _settings.APIEndPoint.AppendPathSegment(APIRoutes.ItemController)
-                                        .SetQueryParam("id", id)
+            APIResponse apiResponse = await _settings.APIEndPoint.AppendPathSegment($"{APIRoutes.ItemController}/{id}")
                                         .GetJsonAsync<APIResponse>();
 
             return ResponseHelper.GetResponse<ItemModel>(apiResponse);

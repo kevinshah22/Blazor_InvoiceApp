@@ -12,6 +12,13 @@ namespace BlazorApp.Services
         Task<int> Create(InvoiceCreateModel invoice);
 
         /// <summary>
+        /// Add category 
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        Task<int> Update(InvoiceCreateModel invoice);
+
+        /// <summary>
         /// Get category based on predicate
         /// </summary>
         /// <param name="predicate"></param>

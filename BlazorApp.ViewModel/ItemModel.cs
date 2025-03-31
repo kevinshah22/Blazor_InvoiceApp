@@ -7,13 +7,11 @@ namespace BlazorApp.ViewModel
         public int Id { get; set; }
         [Required(ErrorMessage = "Please enter name.")]
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required(ErrorMessage = "Please select category.")]
         public int CategoryId { get; set; }
 
-        public string? CategoryName { get; set; }
-
-        public List<CategoryModel>? Categories { get; set; }
+        public string? CategoryName { get; set; }        
     }
 }

@@ -17,7 +17,11 @@ namespace WebApplication1
                 .ForMember(dest => dest.StoreName, opt => opt.MapFrom(src => src.StoreData != null ? src.StoreData.Name : string.Empty))
                 .ReverseMap();
 
-            CreateMap<BlazorApp.Data.Models.InvoiceItem, InvoiceItemModel>().ReverseMap();
+            CreateMap<BlazorApp.Data.Models.InvoiceItem, InvoiceItemModel>()
+                .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.ItemData != null ? src.ItemData.Name : string.Empty))
+                .ReverseMap();
+
+            CreateMap<BlazorApp.Data.Models.JobApplication, JobApplicationModel>().ReverseMap();
         }
     }
 }
