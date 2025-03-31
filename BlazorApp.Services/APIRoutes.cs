@@ -6,5 +6,6 @@
         public const string StoreController = "Store";
         public const string ItemController = "Item";
         public const string InvoiceController = "Invoice";
+        public const string JobApplicationController = "JobApplication";
     }
 }

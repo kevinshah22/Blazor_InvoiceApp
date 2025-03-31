@@ -19,8 +19,17 @@ namespace BlazorApp.Data.Repository
         /// <returns></returns>
         public async Task<int> Create(List<Data.Models.InvoiceItem> invoiceItems)
         {
-            _context.InvoicesItem.AddRange(invoiceItems);
-            return await _context.SaveChangesAsync();
+            try
+            {
+                _context.InvoicesItem.AddRange(invoiceItems);
+                return await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            
         }
 
         public async Task<int> Delete(List<Data.Models.InvoiceItem> invoiceItems)
@@ -40,7 +49,7 @@ namespace BlazorApp.Data.Repository
         /// <returns></returns>
         public async Task<List<Data.Models.InvoiceItem>> GetInvoiceItems(Expression<Func<Data.Models.InvoiceItem, bool>> predicate)
         {
-            return await _context.InvoicesItem.Where(predicate).ToListAsync();
+            return await _context.InvoicesItem.Where(predicate).Include(x => x.ItemData).ToListAsync();
         }
     }
 }

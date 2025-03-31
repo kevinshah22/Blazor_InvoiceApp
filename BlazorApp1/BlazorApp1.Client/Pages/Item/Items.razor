@@ -1,15 +1,16 @@
 ﻿@page "/item"
-@* @rendermode InteractiveAuto *@
+
 @using BlazorApp1.Client.Helpers
 @using BlazorApp.ViewModel
-@inject HttpClient Http
-@inject IJSRuntime JsRuntime
+@inject BlazorSpinner.SpinnerService _spinnerService
+@inject IItemService _itemService
 
-<PageTitle>Stores</PageTitle>
+<PageTitle>Items</PageTitle>
 
-<h1>Stores</h1>
-<div class="row mb-2">
-    <div class="col-md-12">
+
+<div class="row">
+    <div class="col-md-9"><h1>Items</h1></div>
+    <div class="col-md-3 text-end">
         <a href='/item/add' class="btn btn-primary" role="button">
             <i class="fas fa-user-plus"></i>
             Add Item
@@ -71,9 +72,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        APIResponse apiResponse = await Http.GetFromJsonAsync<APIResponse>("https://localhost:7204/v1/Item");
-
-        items = ResponseHelper.GetResponse<List<ItemModel>>(apiResponse);
+        _spinnerService.Show();
+        items = await _itemService.GetItems();
+        _spinnerService.Hide();
     }
 
     private string EditItem(ItemModel item)
@@ -83,16 +84,16 @@
 
     private async Task DeleteItem(ItemModel item)
     {
-        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure to Delete the Item : {item.Name}?"); // Confirm
+        // bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure to Delete the Item : {item.Name}?"); // Confirm
 
-        if (confirmed)
-        {
-            // var result = await Http.DeleteAsync($"/api/employee/deleteemployee/{employee.Id}");
-            // if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
-            // {
-            //     await this.FetEmployees();
-            // }
-        }
+        // if (confirmed)
+        // {
+        //     // var result = await Http.DeleteAsync($"/api/employee/deleteemployee/{employee.Id}");
+        //     // if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
+        //     // {
+        //     //     await this.FetEmployees();
+        //     // }
+        // }
 
 
     }

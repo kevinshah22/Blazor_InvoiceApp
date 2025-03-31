@@ -4,20 +4,20 @@
 @using BlazorApp1.Client.Helpers
 @using BlazorApp.ViewModel
 @inject NavigationManager NavigationManager
-@using System.Net.Http.Headers;
-@inject HttpClient Http
 @inject ICategoryService _categoryService
 @inject IItemService _itemService
+@inject BlazorSpinner.SpinnerService _spinnerService
 
+@if (!IsDialog)
+{
+    <PageTitle>Store</PageTitle>
 
-<PageTitle>Store</PageTitle>
-
-<h1>@Title Item</h1>
-
+    <h1>@Title Item</h1>
+}
 <EditForm Model="item" OnValidSubmit="SaveItem" FormName="itemAdd">
     <DataAnnotationsValidator />
     <div class="mb-3">
-        <label for="Name" class="form-label">Store Name</label>
+        <label for="Name" class="form-label">Item Name</label>
         <div class="col-sm-10">
             <InputText class="form-control" id="catname" @bind-Value="item.Name" />
             <ValidationMessage For="@(() => item.Name)" />
@@ -36,7 +36,7 @@
 
             <InputSelect @bind-Value="item.CategoryId" class="form-select">
                 <option value="">Select Category</option>
-                @foreach (var category in item.Categories)
+                @foreach (var category in categories)
                 {
                     <option value="@category.Id">@category.Name</option>
                 }
@@ -45,8 +45,7 @@
     </div>
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" @onclick="CloseDialog">@(IsDialog ? "Close" : "Back To Store List")</button>
-
+        <button type="button" @onclick="CloseDialog" class="btn btn-danger">@(IsDialog ? "Close" : "Back To Item List")</button>
     </div>
 </EditForm>
 
@@ -55,12 +54,12 @@
     public int id { get; set; }
     [Parameter]
     public int CategoryId { get; set; }
-    [Parameter] 
+    [Parameter]
     public bool IsDialog { get; set; } = false;
 
     [CascadingParameter] public EventCallback<bool>? OnClose { get; set; }
     [Parameter] public EventCallback<int> OnValueChanged { get; set; }
-
+    private List<CategoryModel> categories = new();
 
     protected string Title = "Add";
 
@@ -70,19 +69,22 @@
 
     protected override async Task OnInitializedAsync()
     {
-        item ??= new();
-        item.Categories = new();
-        item.Categories = await _categoryService.GetCategories();
+        _spinnerService.Show();
+        item ??= new();        
+        categories = await _categoryService.GetCategories();
+
         if (id != 0)
         {
             Title = "Edit";
-            APIResponse editResponse = await Http.GetFromJsonAsync<APIResponse>($"https://localhost:7204/v1/Store/{id}");
-            item = ResponseHelper.GetResponse<ItemModel>(editResponse);
+            item = await _itemService.Get(id);
         }
+
+        _spinnerService.Hide();
     }
 
     protected async Task SaveItem()
     {
+        _spinnerService.Show();
         int returnId = 0;
         if (id > 0)
         {
@@ -96,8 +98,9 @@
         if (returnId > 0)
         {
             await OnValueChanged.InvokeAsync(returnId);
-
+            item = new ItemModel();
             CloseDialog();
+            _spinnerService.Hide();
         }
     }
 

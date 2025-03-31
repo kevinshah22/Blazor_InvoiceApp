@@ -17,6 +17,7 @@ namespace BlazorApp.Data
         public virtual DbSet<Store> Stores { get; set; }
         public virtual DbSet<Invoice> Invoices { get; set; }
         public virtual DbSet<InvoiceItem> InvoicesItem { get; set; }
+        public virtual DbSet<JobApplication> JobApplications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\BlazorApp.Core\BlazorApp.Core.csproj" />
     <ProjectReference Include="..\..\BlazorApp.Services\BlazorApp.Services.csproj" />
     <ProjectReference Include="..\BlazorApp1.Client\BlazorApp1.Client.csproj" />
+    <PackageReference Include="BlazorSpinner" Version="3.1.1" />
     <PackageReference Include="IronOcr" Version="2025.3.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.10" />
     <PackageReference Include="MudBlazor" Version="8.3.0" />

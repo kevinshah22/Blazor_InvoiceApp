@@ -3,8 +3,8 @@
 @using BlazorApp1.Client.Helpers
 @using BlazorApp.ViewModel
 @inject NavigationManager NavigationManager
-@using System.Net.Http.Headers;
-@inject HttpClient Http
+@inject IStoreService _storeService
+@inject BlazorSpinner.SpinnerService _spinnerService
 
 <PageTitle>Store</PageTitle>
 
@@ -17,7 +17,7 @@
         <div class="col-sm-10">
             <InputText class="form-control" id="catname" @bind-Value="store.Name" />
             <ValidationMessage For="@(() => store.Name)" />
-        </div>        
+        </div>
     </div>
     <div class="mb-3">
         <label for="Description" class="form-label">Description</label>
@@ -40,38 +40,36 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _spinnerService.Show();
+        store ??= new();
         if (id != 0)
         {
             Title = "Edit";
-            APIResponse apiResponse = await Http.GetFromJsonAsync<APIResponse>($"https://localhost:7204/v1/Store/{id}");
-            store = ResponseHelper.GetResponse<StoreModel>(apiResponse);
+            store = await _storeService.Get(id);
         }
-        else
-        {
-            store ??= new();            
-        }
+
+        _spinnerService.Hide();
     }
 
     protected async Task SaveStore()
     {
-        var categorySerialized = System.Text.Json.JsonSerializer.Serialize(store);
-
+        _spinnerService.Show();
+        int result = 0;
         if (id > 0)
         {
-            var result = await Http.PutAsJsonAsync("https://localhost:7204/v1/Store", store);
-            if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                NavigationManager.NavigateTo("store");
-            }
+            result = await _storeService.Update(store);
         }
         else
         {
-            var result = await Http.PostAsJsonAsync("https://localhost:7204/v1/Store", store);
-            if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                NavigationManager.NavigateTo("store");
-            }
+            result = await _storeService.Create(store);
         }
+
+        if (result > 0)
+        {
+            NavigationManager.NavigateTo("store");
+        }
+
+        _spinnerService.Hide();
     }
 
     public void Cancel()

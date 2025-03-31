@@ -19,6 +19,7 @@ builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IInvoiceItemRepository, InvoiceItemRepository>();
+builder.Services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 var app = builder.Build();
