@@ -37,5 +37,18 @@ namespace BlazorApp.Services
         /// </summary>
         /// <returns></returns>
         Task<List<InvoiceModel>> GetInvoices();
+
+        /// <summary>
+        /// Get Current year invoices
+        /// </summary>
+        /// <returns></returns>
+        Task<List<InvoiceChartModel>> GetInvocieDataCurrentYear();
+
+        /// <summary>
+        /// Invoice items by year.
+        /// </summary>
+        /// <param name="year"></param>
+        /// <returns></returns>
+        Task<List<InvoiceItemChartModel>> GetInvoiceItemsByYear();
     }
 }

@@ -211,6 +211,7 @@
     {
         _spinnerService.Show();
         InvoiceCreateModel invoiceCreate = new() { Invoice = invoice, InvoiceItems = invoiceItems };
+        invoiceCreate.Invoice.InvoiceDate = invoiceDate.Value;
         invoiceCreate.Invoice.BillAmount = grandTotal;
 
         if (id > 0)

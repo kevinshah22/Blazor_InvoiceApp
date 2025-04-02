@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using BlazorApp.ViewModel;
+using System.Linq.Expressions;
 
 namespace BlazorApp.Data.Repository
 {
@@ -38,5 +39,18 @@ namespace BlazorApp.Data.Repository
         /// <param name="predicate"></param>
         /// <returns></returns>
         Task<List<Data.Models.Invoice>> GetInvoices(Expression<Func<Data.Models.Invoice, bool>> predicate);
+
+        /// <summary>
+        /// Get Current year invoices
+        /// </summary>
+        /// <returns></returns>
+        Task<List<InvoiceChartModel>> GetInvocieDataByYear(int year);
+
+        /// <summary>
+        /// Invoice items by year.
+        /// </summary>
+        /// <param name="year"></param>
+        /// <returns></returns>
+        Task<List<InvoiceItemChartModel>> GetInvoiceItemsByYear(int year);
     }
 }

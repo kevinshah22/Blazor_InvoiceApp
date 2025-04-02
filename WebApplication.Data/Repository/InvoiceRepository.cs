@@ -1,4 +1,5 @@
-﻿using BlazorApp.ViewModel;
+﻿using BlazorApp.Data.Models;
+using BlazorApp.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -65,19 +66,48 @@ namespace BlazorApp.Data.Repository
             return await _context.Invoices.Where(predicate).ToListAsync();
         }
 
-        public async Task<List<InvoiceChartModel>> GetInvocieDataCurrentYear()
+        /// <summary>
+        /// Invoice data by year
+        /// </summary>
+        /// <param name="year"></param>
+        /// <returns></returns>
+        public async Task<List<InvoiceChartModel>> GetInvocieDataByYear(int year)
         {
-            //return (from i in _context.Invoices.AsNoTracking()
-            //        join ii in _context.InvoicesItem.AsNoTracking() on i.Id equals ii.InvoiceId
-            //        join s in _context.Stores on i.StoreId equals s.Id
-            //        join itm in _context.Items on ii.ItemId equals itm.Id
-            //        join c in _context.Categories on itm.CategoryId equals c.Id
+            return await (from i in _context.Invoices.AsNoTracking().Include(x => x.InvoiceItemData).Include(x => x.StoreData)
+                          where i.InvoiceDate.Year == year
+                          select new InvoiceChartModel
+                          {
+                              InvoiceDate = i.InvoiceDate,
+                              InvoiceId = i.Id,
+                              StoreId = i.StoreId,
+                              StoreName = i.StoreData != null ? i.StoreData.Name : string.Empty,
+                              Total = i.BillAmount
+                          }
+
+                    ).ToListAsync();
+        }
 
 
-
-            //        )
-
-            return null;
+        /// <summary>
+        /// Invoice items by year.
+        /// </summary>
+        /// <param name="year"></param>
+        /// <returns></returns>
+        public async Task<List<InvoiceItemChartModel>> GetInvoiceItemsByYear(int year)
+        {
+            return await (from i in _context.InvoicesItem.AsNoTracking().Include(x => x.InvoiceData).Include(x => x.ItemData)
+                          where i.InvoiceData != null && i.InvoiceData.InvoiceDate.Year == year
+                          select new InvoiceItemChartModel
+                          {
+                              InvoiceDate = i.InvoiceData.InvoiceDate,
+                              ItemId = i.ItemId,
+                              Price = i.Price,
+                              Quantity = i.Quantity,
+                              Total = i.Total,
+                              ItemName = i.ItemData != null ? i.ItemData.Name : string.Empty,
+                              CategoryId = i.ItemData != null ? i.ItemData.CategoryId : 0,
+                              CategoryName = i.ItemData != null ? i.ItemData.CategoryData != null ? i.ItemData.CategoryData.Name : string.Empty : string.Empty
+                          }).ToListAsync();
         }
     }
 }

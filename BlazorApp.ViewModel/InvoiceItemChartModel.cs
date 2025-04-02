@@ -11,5 +11,7 @@
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
         public decimal Price { get; set; }
+        public decimal Total { get; set; }
+        public DateTime InvoiceDate { get; set; }
     }
 }

@@ -16,5 +16,6 @@ namespace BlazorApp.Data.Models
         public decimal Total { get; set; }
 
         public virtual Item? ItemData { get; set; }
+        public virtual Invoice? InvoiceData { get; set; }   
     }
 }
