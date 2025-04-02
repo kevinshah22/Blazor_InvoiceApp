@@ -11,5 +11,7 @@
         public int StoreId { get; set; }
         public string StoreName { get; set; }
         public DateTime InvoiceDate { get; set; }
+
+        //public List<InvoiceItemChartModel> InvoiceItems { get; set; }
     }
 }

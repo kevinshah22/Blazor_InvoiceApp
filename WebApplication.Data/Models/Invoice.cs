@@ -15,9 +15,11 @@ namespace BlazorApp.Data.Models
         public int StoreId { get; set; }
         [Required]
         public decimal BillAmount { get; set; }
-        [Required]
-        public string Description { get; set; }
+        
+        public string? Description { get; set; }
 
         public virtual Store? StoreData { get; set; }
+
+        public virtual List<InvoiceItem>? InvoiceItemData { get; set; }
     }
 }

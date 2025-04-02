@@ -1,54 +1,110 @@
 ﻿@page "/"
+@using BlazorApp.Services
 @using MudBlazor.Charts
+@using BlazorApp.ViewModel
+@inject IInvoiceService _invoiceService
+@inject BlazorSpinner.SpinnerService _spinnerService
 
 <PageTitle>Home</PageTitle>
+<style>
+    .mud-chart {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+</style>
+<h1>Dashboard</h1>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<div class="row">
+    <div class="col-md-6">
+        <h4>Monthly Invoices</h4>
+        <MudChart ChartType="ChartType.Bar" ChartSeries="@_series" class="mud-chart" @bind-SelectedIndex="_index" XAxisLabels="@_xAxisLabels.ToArray()" Width="auto" Height="@_height"
+                  ChartOptions="options"></MudChart>
+    </div>
+    <div class="col-md-6">
+        <h4>Store wise Monthly Invoices</h4>
+        <MudChart ChartType="ChartType.Bar" ChartSeries="@storeViseInvoice" @bind-SelectedIndex="_index" XAxisLabels="@_xAxisLabels.ToArray()" Width="auto" Height="@_height"
+                  ChartOptions="options"></MudChart>
+    </div>
 
+    <div class="col-md-6">
+        <h4>Category wise Monthly Invoices</h4>
+        <MudChart ChartType="ChartType.Bar" ChartSeries="@categoryWiseInvoice" @bind-SelectedIndex="_index" XAxisLabels="@_xAxisLabels.ToArray()" Width="auto" Height="@_height"
+                  ChartOptions="options"></MudChart>
+    </div>
+</div>
 
-<MudPaper Class="doc-section-component-container">
-    <MudChart ChartType="ChartType.Bar" ChartSeries="@_series" @bind-SelectedIndex="_index" XAxisLabels="@_xAxisLabels" Width="@_width" Height="@_height" AxisChartOptions="_axisChartOptions"></MudChart>
-</MudPaper>
-
-@* <MudGrid>
-    <MudItem xs="6">
-        <MudText Typo="Typo.body1" Class="py-3">Selected: @(_index < 0 ? "None" : _series[_index].Name)</MudText>
-    </MudItem>
-    <MudItem md="6" xs="12">
-        <MudCheckBox @bind-Value="_axisChartOptions.MatchBoundsToSize" Color="Color.Info" Label="MatchBoundsToSize"></MudCheckBox>
-    </MudItem>
-    <MudItem md="6" xs="12">
-        <MudTextField @bind-Value="_width" Label="Chart Width"></MudTextField>
-    </MudItem>
-    <MudItem md="6" xs="12">
-        <MudTextField @bind-Value="_height" Label="Chart Height"></MudTextField>
-    </MudItem>
-    <MudItem md="6" xs="12">
-        <MudStack>
-            <MudText Typo="Typo.body1">Label Extra Height</MudText>
-            <MudSlider @bind-Value="_axisChartOptions.LabelExtraHeight" Min="0" Max="40" Step="5"></MudSlider>
-        </MudStack>
-    </MudItem>
-    <MudItem md="6" xs="12">
-        <MudStack>
-            <MudText Typo="Typo.body1">Label Rotation</MudText>
-            <MudSlider @bind-Value="_axisChartOptions.LabelRotation" Min="0" Max="90" Step="15"></MudSlider>
-        </MudStack>
-    </MudItem>
-</MudGrid> *@
 @code {
     private int _index = -1; //default value cannot be 0 -> first selectedindex is 0.
     private string _width = "650px";
     private string _height = "350px";
-  //  private AxisChartOptions _axisChartOptions = new AxisChartOptions();
 
-    private List<ChartSeries> _series = new List<ChartSeries>()
+    private List<ChartSeries> _series { get; set; } = new();
+    private List<ChartSeries> storeViseInvoice { get; set; } = new();
+    private List<ChartSeries> categoryWiseInvoice { get; set; } = new();
+
+    private List<string> _xAxisLabels { get; set; } = new();
+    private IEnumerable<InvoiceChartModel>? invoices = [];
+    private List<double[]> ChartData { get; set; } = new();
+    private ChartOptions options { get; set; } = new();
+    //private AxisChartOptions _axisChartOptions = new AxisChartOptions();
+
+
+    protected override async Task OnInitializedAsync()
     {
-        new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
-        new ChartSeries() { Name = "Germany", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
-        new ChartSeries() { Name = "Sweden", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
-    };
-    private string[] _xAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
+        _spinnerService.Show();
+        invoices = await _invoiceService.GetInvocieDataCurrentYear();
+        List<InvoiceItemChartModel> invoiceItems = await _invoiceService.GetInvoiceItemsByYear();
+
+        var allMonths = Enumerable.Range(1, 12);
+
+        options = new ChartOptions
+            {
+                LineStrokeWidth = 10d,
+                ShowLabels = true,
+                ShowLegend = true,
+                ShowToolTips = true,
+                ShowLegendLabels = true,
+            };
+
+
+        var monthlyInvoice = invoices
+            .GroupBy(t => t.InvoiceDate.Month)
+            .Select(g => new { Month = g.Key, Total = Convert.ToDouble(g.Sum(t => t.Total)) })
+            .ToList();
+
+
+        var monthlyStoreWiseInvoice = invoices
+        .GroupBy(t => new { t.InvoiceDate.Month, t.StoreId })
+        .Select(g => new { Month = g.Key.Month, StoreId = g.Key.StoreId, Total = Convert.ToDouble(g.Sum(t => t.Total)) })
+        .ToList();
+
+        var monthlyCategoryWiseInvoices = invoiceItems
+        .GroupBy(t => new { t.InvoiceDate.Month, t.CategoryId })
+        .Select(g => new { Month = g.Key.Month, CategoryId = g.Key.CategoryId, Total = Convert.ToDouble(g.Sum(t => t.Total)) })
+        .ToList();
+
+
+        // Ensure all months exist (fill missing months with 0)
+        _xAxisLabels = Enumerable.Range(1, 12).Select(m => new DateTime(1, m, 1).ToString("MMM")).ToList();
+        var stores = invoices.Select(x => new { StoreId = x.StoreId, StoreName = x.StoreName }).Distinct().ToList();
+
+        var categories = invoiceItems.Select(x => new { CategoryId = x.CategoryId, CategoryName = x.CategoryName }).Distinct().ToList();
+
+        foreach (var store in stores)
+        {
+            storeViseInvoice.Add((new ChartSeries { Name = store.StoreName, Data = _xAxisLabels.Select(m => monthlyStoreWiseInvoice.FirstOrDefault(g => g.Month == DateTime.ParseExact(m, "MMM", null).Month && g.StoreId == store.StoreId)?.Total ?? 0).ToArray() }));
+        }
+
+        foreach (var category in categories)
+        {
+            categoryWiseInvoice.Add((new ChartSeries { Name = category.CategoryName, Data = _xAxisLabels.Select(m => monthlyCategoryWiseInvoices.FirstOrDefault(g => g.Month == DateTime.ParseExact(m, "MMM", null).Month && g.CategoryId == category.CategoryId)?.Total ?? 0).ToArray() }));
+        }
+
+        _series.Add(new ChartSeries { Name = "Invoice", Data = _xAxisLabels.Select(m => monthlyInvoice.FirstOrDefault(g => g.Month == DateTime.ParseExact(m, "MMM", null).Month)?.Total ?? 0).ToArray() });
+
+
+        _spinnerService.Hide();
+
+    }
 }

@@ -11,8 +11,8 @@ namespace BlazorApp.ViewModel
         public int StoreId { get; set; }
         [Required]
         public decimal BillAmount { get; set; }
-        [Required]
-        public string Description { get; set; }
+        
+        public string? Description { get; set; }
 
         public string? StoreName { get; set; }
                 

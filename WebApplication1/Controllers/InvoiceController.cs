@@ -107,5 +107,17 @@ namespace WebApplication1.Controllers
 
             return NotFound("Invoice not found");
         }
+
+        [HttpGet("current-year-invoice")]
+        public async Task<IActionResult> GetCurrentYearInvoice()
+        {
+            return Ok(await _invoiceRepository.GetInvocieDataByYear(DateTime.Now.Year));
+        }
+
+        [HttpGet("current-year-invoice-items")]
+        public async Task<IActionResult> GetCurrentYearInvoiceItems()
+        {
+            return Ok(await _invoiceRepository.GetInvoiceItemsByYear(DateTime.Now.Year));
+        }
     }
 }

@@ -82,5 +82,31 @@ namespace BlazorApp.Services
 
             return ResponseHelper.GetResponse<List<InvoiceModel>>(apiResponse);
         }
+
+        /// <summary>
+        /// Get Current year invoices
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<InvoiceChartModel>> GetInvocieDataCurrentYear()
+        {
+            APIResponse apiResponse = await _settings.APIEndPoint.AppendPathSegment($"{APIRoutes.InvoiceController}/current-year-invoice")
+                                           .GetJsonAsync<APIResponse>();
+
+            return ResponseHelper.GetResponse<List<InvoiceChartModel>>(apiResponse);
+        }
+
+
+        /// <summary>
+        /// Invoice items by year.
+        /// </summary>
+        /// <param name="year"></param>
+        /// <returns></returns>
+        public async Task<List<InvoiceItemChartModel>> GetInvoiceItemsByYear()
+        {
+            APIResponse apiResponse = await _settings.APIEndPoint.AppendPathSegment($"{APIRoutes.InvoiceController}/current-year-invoice-items")
+                                               .GetJsonAsync<APIResponse>();
+
+            return ResponseHelper.GetResponse<List<InvoiceItemChartModel>>(apiResponse);
+        }
     }
 }
