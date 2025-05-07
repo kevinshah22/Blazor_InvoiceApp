@@ -2,9 +2,11 @@
 @page "/store/edit/{id:int}"
 @using BlazorApp1.Client.Helpers
 @using BlazorApp.ViewModel
+@using MudBlazor
 @inject NavigationManager NavigationManager
 @inject IStoreService _storeService
 @inject BlazorSpinner.SpinnerService _spinnerService
+@inject ISnackbar Snackbar
 
 <PageTitle>Store</PageTitle>
 
@@ -66,7 +68,9 @@
 
         if (result > 0)
         {
-            NavigationManager.NavigateTo("store");
+            //NavigationManager.NavigateTo("store");
+            Snackbar.Add("Store data saved successfully!", Severity.Success);
+            store = new();
         }
 
         _spinnerService.Hide();

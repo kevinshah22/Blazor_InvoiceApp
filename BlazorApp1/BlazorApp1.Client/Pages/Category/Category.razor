@@ -3,9 +3,11 @@
 
 @using BlazorApp1.Client.Helpers
 @using BlazorApp.ViewModel
+@using MudBlazor
 @inject NavigationManager NavigationManager
 @inject ICategoryService _categoryService
 @inject BlazorSpinner.SpinnerService _spinnerService
+@inject ISnackbar snackBar
 
 <h3>@HeaderText</h3>
 <hr />
@@ -74,16 +76,26 @@ else
         int returnId = 0;
         if (id > 0)
         {
-            returnId = await _categoryService.Create(category);
+            returnId = await _categoryService.Update(category);
         }
         else
         {
-            returnId = await _categoryService.Update(category);
+            returnId = await _categoryService.Create(category);
         }
 
         if (returnId > 0)
         {
-            NavigationManager.NavigateTo("category");
+            if (id > 0)
+            {
+                NavigationManager.NavigateTo("category/success");
+            }
+            else
+            {
+                snackBar.Add("Category data saved successfully!", Severity.Success);
+
+                category = new();
+                _spinnerService.Hide();
+            }
         }
     }
 }

@@ -21,8 +21,4 @@
     <ProjectReference Include="..\..\BlazorApp.ViewModel\BlazorApp.ViewModel.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Pages\Settings\" />
-  </ItemGroup>
-
 </Project>

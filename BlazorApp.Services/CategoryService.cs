@@ -69,5 +69,19 @@ namespace BlazorApp.Services
             return ResponseHelper.GetResponse<List<CategoryModel>>(apiResponse);
         }
 
+        /// <summary>
+        /// update category
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        public async Task<int> UpdateBudget(CategoryModel category)
+        {
+            APIResponse apiResponse = await _settings.APIEndPoint.AppendPathSegment($"{APIRoutes.CategoryController}/update-budget")
+                                            .PutJsonAsync(category)
+                                            .ReceiveJson<APIResponse>();
+
+            return ResponseHelper.GetResponse<int>(apiResponse);
+        }
+        
     }
 }

@@ -45,7 +45,23 @@ namespace WebApplication1.Controllers
             if (dbcategory != null)
             {
                 dbcategory.Name = category.Name;
-                dbcategory.Description = category.Description;
+                dbcategory.Description = category.Description;                
+
+                return Ok(await _categoryRepository.Update(dbcategory));
+            }
+
+            return NotFound("Category not found");
+        }
+
+
+        [HttpPut("update-budget")]
+        public async Task<IActionResult> UpdateBudget(CategoryModel category)
+        {
+            Category dbcategory = await _categoryRepository.Getcategory(x => x.Id == category.Id);
+
+            if (dbcategory != null)
+            {
+                dbcategory.Budget = category.Budget;
 
                 return Ok(await _categoryRepository.Update(dbcategory));
             }

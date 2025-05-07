@@ -34,5 +34,12 @@ namespace BlazorApp.Services
         /// <param name="predicate"></param>
         /// <returns></returns>
         Task<List<CategoryModel>> GetCategories();
+
+        /// <summary>
+        /// Update category budget
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        Task<int> UpdateBudget(CategoryModel category);
     }
 }

@@ -1,0 +1,62 @@
+﻿@page "/setting"
+
+@using BlazorApp1.Client.Helpers
+@using BlazorApp.ViewModel
+@using MudBlazor
+@inject NavigationManager NavigationManager
+@inject ICategoryService _categoryService
+@inject BlazorSpinner.SpinnerService _spinnerService
+@inject ISnackbar Snackbar
+
+<PageTitle>Store</PageTitle>
+
+<h1>Manage Budget</h1>
+
+@if (categories != null)
+{
+    <div class="form-group row">
+        @foreach (var category in categories)
+        {
+            <div class="mb-5">
+                <label for="@category.Name" class="form-label">Monthly budget of @category.Name</label>
+                <div class="col-sm-7">
+                    <InputNumber class="form-control" id="@category.Name" @bind-Value="category.Budget"></InputNumber>
+                </div>
+            </div>
+        }
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" @onclick="SaveBudget">Save</button>
+            <button type="button" @onclick="Cancel" class="btn btn-danger">Dashboard</button>
+        </div>
+    </div>
+}
+@code {
+    [SupplyParameterFromForm]
+    private List<CategoryModel> categories { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _spinnerService.Show();
+        categories = await _categoryService.GetCategories();
+        _spinnerService.Hide();
+    }
+
+    protected async Task SaveBudget()
+    {
+        _spinnerService.Show();
+        List<Task<int>> updateCategory = categories.Select(x => Task.Run(() => _categoryService.UpdateBudget(x))).ToList();
+
+        Task.WaitAll(updateCategory.ToArray());
+
+        Snackbar.Add("Category budget updated successfully!", Severity.Success);
+
+        _spinnerService.Hide();
+    }
+
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("");
+    }
+}
